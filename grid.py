@@ -2,6 +2,10 @@ import numpy as np
 
 class Grid:
     def __init__(self):
+        """Initialize grid
+            default grid loaded - domain D = [0,40]x[0,40]x[0,40]
+                                - size MxNxP = 30x30x30 
+        """
         self.A = 40
         self.B = 40
         self.C = 40
