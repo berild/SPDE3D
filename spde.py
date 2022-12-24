@@ -26,24 +26,17 @@ def rqinv(Q):
 
 class spde:
     '''
-    Non-Stationary Anisotropic model in 2D and 3D. The Gaussian Random Field is approximated with a Stochastic Partial Differential Equation
-    with the matérn covariance function as stationary solution. 
+    GMRF in 3D specified through a SPDE with matern covariance function. 
+    Optional spatially varying anisotropy. 
     
 
     Parameters
     ----------
-    grid : class
-        Self defined grid from the grid class. If not specified the grid will be default. 
     par : array
-        Weights of the basis splines for each parameter. Must have length 136.
+        Parameter values of the model (will get error if wrong)
     model: int
-        Defines the type of model (1 = stationary isotropic, 2 = stationary bidirectional anistropy, 
-        3 = non-stationary unidirectional anisotropy, 4 = non-stationary biderectional anisotropy)
-
-    Attributes
-    ----------
-    define : str
-        This is where we store arg,
+        Defines the type of model (1 = stationary isotropic, 2 = stationary anistropy, 
+        3 = non-stationary isotropic, 4 = non-stationary anisotropy)
     '''
     def __init__(self, model = None, par = None):
         self.grid = Grid()
@@ -54,14 +47,53 @@ class spde:
             self.mod = None 
 
     def setGrid(self,M=None,N = None, P = None, x = None, y = None, z = None):
+        '''
+        Function to set the grid of your model. Grid is set in the grid class 
+
+        Parameters
+        ----------
+        M : int
+            number of cells in x-dimension
+        N : int
+            number of cells in y-dimension
+        P : int
+            number of cells in z-dimension
+        x : array
+            x-value of cell centers
+        y : array
+            y-value of cell centers
+        z : array
+            z-value of cell centers
+        '''
         self.grid.setGrid(M = M, N = N, P = P, x = x, y = y, z = z)
         self.mod.setGrid(self.grid)
 
     def setQ(self,par = None,S = None,simple = False):
+        '''
+        Set the covariance matrix.
+
+        Parameters
+        ----------
+        S : array (sparse)
+            set the observed locations (0 or 1)
+            None sets diagonal matrix
+        par : array
+            set parameters values
+        '''
         self.mod.setQ(par=par,S=S)
 
-    # fix par for models
     def define(self, model = None, par = None):
+        '''
+        define model type
+
+        Parameters
+        ----------
+        par : array
+            Parameter values of the model (will get error if wrong)
+        model: int
+            Defines the type of model (1 = stationary isotropic, 2 = stationary anistropy, 
+            3 = non-stationary isotropic, 4 = non-stationary anisotropy)
+        '''
         assert(model is not None or self.model is not None)
         if model is not None:
             self.model = model 
@@ -77,13 +109,19 @@ class spde:
         elif (self.model==4):
             from NonStatAnIso import NonStatAnIso
             self.mod = NonStatAnIso(grid = self.grid,par=par)
-        elif (self.model==5):
-            from ocean import NonStatAnIso
-            self.mod = NonStatAnIso(grid = self.grid,par=par)
         else:
             print("Not a implemented model (1-4)...")
 
     def load(self,model=None,simple = False):
+        '''
+        Function used to load simulation study models
+
+        Parameters
+        ----------
+        model: int
+            Defines the type of model (1 = stationary isotropic, 2 = stationary anistropy, 
+            3 = non-stationary isotropic, 4 = non-stationary anisotropy)
+        '''
         if model is None:
             if self.mod is None:
                 print("No model defined...")
