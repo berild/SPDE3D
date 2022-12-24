@@ -81,7 +81,7 @@ class NonStatAnIso:
         return(np.hstack([self.kappa,self.gamma,self.vx,self.vy,self.vz,self.rho1,self.rho2,self.tau]))
 
     def load(self,simple = False):
-        simmod = np.load("./simmodels/NA.npz")
+        simmod = np.load("./simulation_study_models/NA.npz")
         self.kappa = simmod['kappa']*1
         self.gamma = simmod['gamma']*1
         self.vx = simmod['vx']*1
@@ -132,10 +132,10 @@ class NonStatAnIso:
 
     def fitTo(self,simmod,dho,r,num,verbose = False, fgrad = True, par = None):
         if simmod == 4:
-            tmp = np.load("./simmodels/NA.npz")
+            tmp = np.load("./simulation_study_models/NA.npz")
             self.truth = np.hstack([tmp['kappa'],tmp['gamma'],tmp['vx'],tmp['vy'],tmp['vz'],tmp['rho1'],tmp['rho2'],np.log(1/np.exp(tmp['sigma'])**2)])
         if par is None:
-            par = np.load('./simmodels/initNA.npy')
+            par = np.load('./simulation_study_models/initNA.npy')
         mods = np.array(['SI','SA','NI','NA'])
         dhos = np.array(['100','10000','27000'])
         rs = np.array([1,10,100])
@@ -174,21 +174,7 @@ class NonStatAnIso:
         A_mat = self.Dv@Dk - AH(self.grid.M,self.grid.N,self.grid.P,Hs,self.grid.hx,self.grid.hy,self.grid.hz)
         self.Q = A_mat.transpose()@self.iDv@A_mat
         self.Q_fac = self.cholesky(self.Q)
-        #self.mvar = rqinv(self.Q).diagonal()
 
-    # def sample(self,n = 1, Q_fac = None, sigma = None, simple = False):
-    #     if Q_fac is None:
-    #         Q_fac = self.Q_fac
-    #     z = np.random.normal(size = self.n*n).reshape(self.n,n)
-    #     if simple:
-    #         data = Q_fac.apply_Pt(Q_fac.solve_Lt(z,use_LDLt_decomposition=False)) 
-    #     else:
-    #         if sigma is None:
-    #             sigma = self.sigma 
-    #         data = Q_fac.apply_Pt(Q_fac.solve_Lt(z,use_LDLt_decomposition=False)) + np.random.normal(size = self.n*n).reshape(self.n,n)*np.exp(sigma)
-    #     if n ==1:
-    #         data = data.reshape(self.n)
-    #     return(data)
     def sample(self,n = 1,simple = False):
         z = np.random.normal(size = self.n*n).reshape(self.n,n)
         if simple:
@@ -231,8 +217,7 @@ class NonStatAnIso:
         Dk =  sparse.diags(np.exp(self.grid.evalB(par = self.kappa))) 
         A_mat = self.Dv@Dk - AH(self.grid.M,self.grid.N,self.grid.P,Hs,self.grid.hx,self.grid.hy,self.grid.hz)
         self.Q = A_mat.transpose()@self.iDv@A_mat
-        if not simple:
-            self.Q_fac = self.cholesky(self.Q)
+        self.Q_fac = self.cholesky(self.Q)
 
     def getH(self,gamma = None,vx = None,vy = None, vz = None,rho1 = None,rho2 = None,d=None,grad = False):
         if gamma is None and vx is None and vy is None and vz is None and rho1 is None and rho2 is None:

@@ -74,7 +74,7 @@ class StatIso:
 
         
     def load(self,simple = False):
-        simmod = np.load("./simmodels/SI.npz")
+        simmod = np.load("./simulation_study_models/SI.npz")
         self.kappa = simmod['kappa']*1
         self.gamma = simmod['gamma']*1
         self.sigma = simmod['sigma']*1
@@ -111,10 +111,10 @@ class StatIso:
 
     def fitTo(self,simmod,dho,r,num,verbose = False, fgrad = True, par = None):
         if simmod == 1:
-            tmp = np.load("./simmodels/SI.npz")
+            tmp = np.load("./simulation_study_models/SI.npz")
             self.truth = np.hstack([tmp['kappa'],tmp['gamma'],np.log(1/np.exp(tmp['sigma'])**2)])
         if par is None:
-            par = np.load('./simmodels/initSI.npy')
+            par = np.load('./simulation_study_models/initSI.npy')
         mods = np.array(['SI','SA','NI','NA'])
         dhos = np.array(['100','10000','27000'])
         rs = np.array([1,10,100])
@@ -184,8 +184,6 @@ class StatIso:
         A_mat = self.Dv@Dk - AH(self.grid.M,self.grid.N,self.grid.P,Hs,self.grid.hx,self.grid.hy,self.grid.hz)
         self.Q = A_mat.transpose()@self.iDv@A_mat
         self.Q_fac = self.cholesky(self.Q)
-        if not simple:
-            self.Q_fac = self.cholesky(self.Q)
 
 
     def cholesky(self,Q):

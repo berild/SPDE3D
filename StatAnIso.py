@@ -79,7 +79,7 @@ class StatAnIso:
         return(np.hstack([self.kappa,self.gamma,self.vx,self.vy,self.vz,self.rho1,self.rho2,self.tau]))
 
     def load(self,simple = False):
-        simmod = np.load("./simmodels/SA.npz")
+        simmod = np.load("./simulation_study_models/SA.npz")
         self.kappa = simmod['kappa']*1
         self.gamma = simmod['gamma']*1
         self.vx = simmod['vx']*1
@@ -127,10 +127,10 @@ class StatAnIso:
 
     def fitTo(self,simmod,dho,r,num,verbose = False, fgrad = True, par = None):
         if simmod == 2:
-            tmp = np.load('./simmodels/SA.npz')
+            tmp = np.load('./simulation_study_models/SA.npz')
             self.truth = np.hstack([tmp['kappa'],tmp['gamma'],tmp['vx'],tmp['vy'],tmp['vz'],tmp['rho1'],tmp['rho2'],np.log(1/np.exp(tmp['sigma'])**2)])
         if par is None:
-            par = np.load('./simmodels/initSA.npy')
+            par = np.load('./simulation_study_models/initSA.npy')
         mods = np.array(['SI','SA','NI','NA'])
         dhos = np.array(['100','10000','27000'])
         rs = np.array([1,10,100])
@@ -211,8 +211,6 @@ class StatAnIso:
         A_mat = self.Dv@Dk - AH(self.grid.M,self.grid.N,self.grid.P,Hs,self.grid.hx,self.grid.hy,self.grid.hz)
         self.Q = A_mat.transpose()@self.iDv@A_mat
         self.Q_fac = self.cholesky(self.Q)
-        if not simple:
-            self.Q_fac = self.cholesky(self.Q)
             
             
     def getH(self,par=None,d=None):
